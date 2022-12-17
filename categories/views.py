@@ -12,12 +12,15 @@ def categories(request):  # every views function receives 'request'
         serializer = CategorySerializer(all_categories, many=True)
         return Response(serializer.data)
     elif request.method == "POST":
-        print(request.data)
-        return Response({"created": True})
+        serializer = CategorySerializer(data=request.data)  # user data -> database
+        if serializer.is_valid():
+            return Response({"created": True})
+        else:
+            return Response(serializer.errors)
 
 
 @api_view()
 def category(request, pk):
     category = Category.objects.get(pk=pk)
-    serializer = CategorySerializer(category)
+    serializer = CategorySerializer(category)  # django data -> json
     return Response(serializer.data)
