@@ -8,7 +8,5 @@
     "description": "55444123",
     "address": "123123",
     "pet_friendly": true,
-    "kind": "entire_place",
-    "category": {"name":"lalal", "kind":"rooms"},
-    "amenities": [{"name": "hahahah", "description":"papapap"}]
+    "kind": "entire_place"
 }
