@@ -8,5 +8,6 @@
     "description": "55444123",
     "address": "123123",
     "pet_friendly": true,
-    "kind": "entire_place"
+    "kind": "entire_place",
+    "category": 2
 }
