@@ -41,7 +41,6 @@ class RoomDetailSerializer(ModelSerializer):
     owner = TinyUserSerializer(read_only=True)
     amenities = AmenitySerializer(read_only=True, many=True)
     category = CategorySerializer(read_only=True)
-    reviews = ReviewSerializer(read_only=True, many=True)
 
     rating = SerializerMethodField()
     is_owner = SerializerMethodField()
