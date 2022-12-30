@@ -23,6 +23,7 @@ class RoomListSerializer(ModelSerializer):
     class Meta:
         model = Room
         fields = (
+            "pk",
             "name",
             "country",
             "city",
