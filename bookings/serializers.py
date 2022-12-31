@@ -50,6 +50,6 @@ class CreateRoomBookingSerializer(ModelSerializer):
             check_out__gte=data["check_in"],
         ).exists():
             raise serializers.ValidationError(
-                "Thoes (or some) of those dates are already taken."
+                "Those (or some of those) dates are already taken."
             )
         return data
