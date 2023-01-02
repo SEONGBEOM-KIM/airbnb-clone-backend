@@ -17,7 +17,7 @@ class PublicBookingSerializer(ModelSerializer):
 
 
 class CreateRoomBookingSerializer(ModelSerializer):
-    check_in = serializers.DateField()
+    check_in = serializers.DateField()  # check_in was optional, so overide for required
     check_out = serializers.DateField()
 
     class Meta:
@@ -34,11 +34,11 @@ class CreateRoomBookingSerializer(ModelSerializer):
             raise serializers.ValidationError("Can't book in the past!")
         return value  # returning value -> is valid. or raise error
 
-    def validate_check_out(self, value):  # validate_ <- customized validation
+    def validate_check_out(self, value):
         now = timezone.localtime(timezone.now()).date()
         if now > value:
             raise serializers.ValidationError("Can't book in the past!")
-        return value  # returning value -> is valid. or raise error
+        return value
 
     def validate(self, data):
         if data["check_out"] <= data["check_in"]:
