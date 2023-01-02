@@ -2,8 +2,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.exceptions import ParseError
-from .serializers import PrivateUserSerializer
+from rest_framework.exceptions import ParseError, NotFound
+from users.models import User
+from .serializers import PrivateUserSerializer, PublicUserSerializer
 
 
 class Me(APIView):
@@ -29,7 +30,7 @@ class Me(APIView):
             return Response(serializer.errors)
 
 
-class Users(APIView):
+class Users(APIView):  # create user
     def post(self, request):
         password = request.data.get("password")
         if not password:
@@ -43,3 +44,28 @@ class Users(APIView):
             return Response(serializer.data)
         else:
             return Response(serializer.errors)
+
+
+class PublicUser(APIView):
+    def get(self, request, username):
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            raise NotFound
+        serializer = PublicUserSerializer(user)
+        return Response(serializer.data)
+
+
+class ChangePassword(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request):
+        user = request.user
+        old_password = request.data.get("old_password")
+        new_password = request.data.get("new_password")
+        if user.check_password(old_password):  # <- True or False
+            user.set_password(new_password)
+            user.save()
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
