@@ -35,4 +35,5 @@ class PublicUserSerializer(ModelSerializer):
             "username",
             "email",
             "avatar",
+            "rooms",
         )
