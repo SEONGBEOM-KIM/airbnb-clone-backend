@@ -29,6 +29,12 @@ class PrivateUserSerializer(ModelSerializer):
 
 
 class PublicUserSerializer(ModelSerializer):
+    from rooms.serializers import UserRoomSerializer
+    from reviews.serializers import ReviewSerializer
+
+    rooms = UserRoomSerializer(read_only=True, many=True)
+    reviews = ReviewSerializer(read_only=True, many=True)
+
     class Meta:
         model = User
         fields = (
@@ -36,4 +42,5 @@ class PublicUserSerializer(ModelSerializer):
             "email",
             "avatar",
             "rooms",
+            "reviews",
         )
