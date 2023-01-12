@@ -1,7 +1,7 @@
 ### Experiences(TODOS)
 
 -[x] POST /experiences 
--[] GET[x] PUT DELETE /experiences/1
+-[] GET[x] PUT[x] DELETE[x] /experiences/1
 -[x] GET /experiences/1/perks
 -[x] GET POST /perks
 -[] GET PUT DELETE /perks/1

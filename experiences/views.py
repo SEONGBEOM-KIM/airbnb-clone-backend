@@ -1,7 +1,7 @@
 from django.db import transaction
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.exceptions import NotFound, ParseError
+from rest_framework.exceptions import NotFound, ParseError, PermissionDenied
 from rest_framework.status import HTTP_204_NO_CONTENT
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from categories.models import Category
@@ -93,13 +93,52 @@ class Experiences(APIView):
 class ExperienceDetail(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
-    def get_experience(self, pk):
+    def get_object(self, pk):
         try:
             return Experience.objects.get(pk=pk)
         except Experience.DoesNotExist:
             raise NotFound
 
     def get(self, request, pk):
-        experience = self.get_experience(pk)
+        experience = self.get_object(pk)
         serializer = ExperienceSerializer(experience)
         return Response(serializer.data)
+
+    def put(self, request, pk):
+        experience = self.get_object(pk)
+        if experience.host != request.user:
+            raise PermissionDenied
+        serializer = ExperienceSerializer(
+            experience,
+            data=request.data,
+            partial=True,
+        )
+        if serializer.is_valid():
+            category_pk = request.data.get("category")
+            try:
+                category = Category.objects.get(pk=category_pk)
+                if category.kind == Category.CategoryKindChoices.ROOMS:
+                    raise ParseError("The category should be 'experience'")
+            except Category.DoesNotExist:
+                raise ParseError("Category not found")
+            try:
+                with transaction.atomic():
+                    if category_pk:
+                        room = serializer.save(category=category)
+                    else:
+                        room = serializer.save()
+                    perks = request.data.get("perk")
+                    for perk_pk in perks:
+                        perk = Perk.objects.get(pk=perk_pk)
+                        experience.perk.add(perk)
+                    serializer = ExperienceSerializer(experience)
+                    return Response(serializer.data)
+            except Exception:
+                raise ParseError("Perk not found")
+        else:
+            return Response(serializer.errors)
+
+    def delete(self, request, pk):
+        experience = self.get_object(pk)
+        experience.delete()
+        return Response(status=HTTP_204_NO_CONTENT)
