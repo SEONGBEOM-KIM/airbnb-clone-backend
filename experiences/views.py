@@ -1,10 +1,13 @@
 from django.db import transaction
+from django.utils import timezone
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound, ParseError, PermissionDenied
 from rest_framework.status import HTTP_204_NO_CONTENT
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from categories.models import Category
+from bookings.models import Booking
+from bookings.serializers import PublicBookingSerializer
 from .models import Perk, Experience
 from .serializers import PerkSerializer, ExperienceSerializer
 
@@ -142,3 +145,27 @@ class ExperienceDetail(APIView):
         experience = self.get_object(pk)
         experience.delete()
         return Response(status=HTTP_204_NO_CONTENT)
+
+
+class ExperienceBookings(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_object(self, pk):
+        try:
+            return Experience.objects.get(pk=pk)
+        except Experience.DoesNotExist:
+            raise NotFound
+
+    def get(self, request, pk):
+        experience = self.get_object(pk)
+        now = timezone.localtime(timezone.now()).date()
+        bookings = Booking.objects.filter(
+            experience=experience,
+            kind=Booking.BookingKindChoices.EXPERIENCE,
+            experience_time__gt=now,
+        )
+        serializer = PublicBookingSerializer(bookings, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, pk):
+        pass
