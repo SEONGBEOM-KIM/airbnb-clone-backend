@@ -7,7 +7,10 @@ from rest_framework.status import HTTP_204_NO_CONTENT
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from categories.models import Category
 from bookings.models import Booking
-from bookings.serializers import PublicBookingSerializer
+from bookings.serializers import (
+    PublicBookingSerializer,
+    CreateExperienceBookingSerializer,
+)
 from .models import Perk, Experience
 from .serializers import PerkSerializer, ExperienceSerializer
 
@@ -168,4 +171,15 @@ class ExperienceBookings(APIView):
         return Response(serializer.data)
 
     def post(self, request, pk):
-        pass
+        experience = self.get_object(pk)
+        serializer = CreateExperienceBookingSerializer(data=request.data)
+        if serializer.is_valid():
+            booking = serializer.save(
+                user=request.user,
+                experience=experience,
+                kind=Booking.BookingKindChoices.EXPERIENCE,
+            )
+            serializer = PublicBookingSerializer(booking)
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)

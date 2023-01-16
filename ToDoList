@@ -5,7 +5,7 @@
 -[x] GET /experiences/1/perks
 -[x] GET POST /perks
 -[x] GET PUT DELETE /perks/1
--[] GET POST /experiences/1/bookings
+-[x] GET POST /experiences/1/bookings [to_do: validate experience_time]
 -[] GET PUT DELETE /experiences/1/bookings/2
 
 
