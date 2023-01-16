@@ -183,3 +183,37 @@ class ExperienceBookings(APIView):
             return Response(serializer.data)
         else:
             return Response(serializer.errors)
+
+
+class ExperienceToggle(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, pk, user):
+        try:
+            return Booking.objects.get(pk=pk, user=user)
+        except Booking.DoesNotExist:
+            raise NotFound
+
+    def get(self, request, pk, booking_pk):
+        booking = self.get_object(pk=booking_pk, user=request.user)
+        serializer = PublicBookingSerializer(booking)
+        return Response(serializer.data)
+
+    def put(self, request, pk, booking_pk):
+        booking = self.get_object(pk=booking_pk, user=request.user)
+        serializer = CreateExperienceBookingSerializer(
+            booking,
+            data=request.data,
+            partial=True,
+        )
+        if serializer.is_valid():
+            booking = serializer.save()
+            serializer = CreateExperienceBookingSerializer(booking)
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+
+    def delete(self, request, pk, booking_pk):
+        booking = self.get_object(pk=booking_pk, user=request.user)
+        booking.delete()
+        return Response(status=HTTP_204_NO_CONTENT)
