@@ -12,6 +12,6 @@
 ### Wihslists(TODOS)
 
 -[x] GET POST /wishlists
--[] GET PUT DELETE /wishlists/1
+-[x] GET PUT DELETE /wishlists/1
 -[x] PUT /wishlist/1/room/2
 -[x] is_liked
