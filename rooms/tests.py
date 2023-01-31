@@ -5,7 +5,7 @@ from . import models
 class TestAmenities(APITestCase):
 
     NAME = "Amenity Test"
-    DESC = "Amenity Des"
+    DESC = "Amenity Desc"
     URL = "/api/v1/rooms/amenities/"
 
     def setUp(self):  # setup database
@@ -77,4 +77,83 @@ class TestAmenities(APITestCase):
         self.assertIn(
             "name",
             data,
+        )
+
+
+class TestAmenity(APITestCase):
+
+    NAME = "Test Amenity"
+    DESC = "Test Desc"
+
+    def setUp(self):
+        models.Amenity.objects.create(
+            name=self.NAME,
+            description=self.DESC,
+        )
+
+    def test_amenity_not_found(self):
+        response = self.client.get("/api/v1/rooms/amenities/2/")
+
+        self.assertEqual(
+            response.status_code,
+            404,
+        )
+
+    def test_get_amenity(self):
+        response = self.client.get("/api/v1/rooms/amenities/1/")
+
+        self.assertEqual(
+            response.status_code,
+            200,
+        )
+
+        data = response.json()
+
+        self.assertEqual(
+            data["name"],
+            self.NAME,
+        )
+        self.assertEqual(
+            data["description"],
+            self.DESC,
+        )
+
+    def test_put_amenity(self):
+        put_amenity_name = "Put Amenity"
+        put_amenity_desc = "Put Amenity Desc"
+
+        response = self.client.put(
+            "/api/v1/rooms/amenities/1/",
+            {"name": put_amenity_name, "description": put_amenity_desc},
+        )
+        data = response.json()
+
+        self.assertEqual(
+            response.status_code,
+            200,
+            "Not 200 status code",
+        )
+        self.assertEqual(
+            data["name"],
+            put_amenity_name,
+        )
+        self.assertEqual(
+            data["description"],
+            put_amenity_desc,
+        )
+
+        response = self.client.put("/api/v1/rooms/amenities/1/")
+        data = response.json()
+
+        self.assertIn(
+            "name",
+            data,
+        )
+
+    def test_delete_amenity(self):
+        response = self.client.delete("/api/v1/rooms/amenities/1/")
+
+        self.assertEqual(
+            response.status_code,
+            204,
         )
